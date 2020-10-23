@@ -24,6 +24,25 @@ public class Handler : MonoBehaviour {
             Debug.Log(previousOverallFitness);
             Debug.Log(overallFitness);
             previousOverallFitness = overallFitness;
+            BreedNewPopulation();
         }
+    }
+
+    void BreedNewPopulation() {
+        List<Agent> sortedAgents = SortAgentsUsingFitnessFunction();
+        List<Agent> newAgents = new List<Agent>();
+        for (int i = 0; i < sortedAgents.Count; i += 2) {
+            newAgents.Add(new Agent(sortedAgents[i].chromosome, sortedAgents[i + 1].chromosome));
+            newAgents.Add(new Agent(sortedAgents[i].chromosome, sortedAgents[i + 1].chromosome));
+        }
+        agents.Clear();
+        agents = new List<Agent>(newAgents);
+        Debug.Log(agents.Count);
+    }
+
+    List<Agent> SortAgentsUsingFitnessFunction() {
+        List<Agent> sortedList = new List<Agent>();
+        sortedList = agents;
+        return sortedList;
     }
 }

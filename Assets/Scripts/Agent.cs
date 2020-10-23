@@ -1,10 +1,25 @@
 ﻿public class Agent {
-    private Chromosome chromosome;
+    public Chromosome chromosome { get; internal set; }
     public string name { get; internal set; }
 
     public Agent(Chromosome chromosome, string name) {
         this.chromosome = chromosome;
         this.name = name;
+        chromosome.AddGene(GeneType.Food);
+        chromosome.AddGene(GeneType.Water);
+        chromosome.AddGene(GeneType.Wealth);
+    }
+
+    public Agent(Chromosome parent1, Chromosome parent2) {
+        chromosome = new Chromosome();
+        for (int i = 0; i < parent1.genes.Count; i++) {
+            int rng = UnityEngine.Random.Range(0, 2);
+            if (rng == 0) {
+                chromosome.AddGene(parent1.genes[i]);
+            } else {
+                chromosome.AddGene(parent2.genes[i]);
+            }
+        }        
     }
 
     public float CalculateFitness() {
