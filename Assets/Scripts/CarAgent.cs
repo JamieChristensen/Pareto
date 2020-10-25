@@ -7,7 +7,7 @@ using UnityEngine;
 public class CarAgent : MonoBehaviour
 {
     //Handler has a CarAgent type prefab, that it instatiates with this chromosome:
-    public Chromosome genes;
+    [SerializeField] public Chromosome genes;
     [Tooltip("The max speed of the vehicle, as speed approaches this, acceleration approaches 0")]
     public float maxSpeed;
 

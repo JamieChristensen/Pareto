@@ -5,9 +5,7 @@
     public Agent(Chromosome chromosome, string name) {
         this.chromosome = chromosome;
         this.name = name;
-        chromosome.AddGene(GeneType.Food);
-        chromosome.AddGene(GeneType.Water);
-        chromosome.AddGene(GeneType.Wealth);
+ 
     }
 
     public Agent(Chromosome parent1, Chromosome parent2) {
