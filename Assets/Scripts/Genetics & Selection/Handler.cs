@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum GeneType { Food, Water, Wealth }
 
 public class Handler : MonoBehaviour {
     [SerializeField] private int populationSize = 10;
