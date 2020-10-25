@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class CarAgent : MonoBehaviour
 {
+    public bool isCreatedManually = false;
     //Handler has a CarAgent type prefab, that it instatiates with this chromosome:
     [SerializeField] public Chromosome genes;
     [Tooltip("The max speed of the vehicle, as speed approaches this, acceleration approaches 0")]
@@ -37,9 +38,15 @@ public class CarAgent : MonoBehaviour
 
     void Start()
     {
-        GenotypeToPhenotype(genes);
+        if (!isCreatedManually)
+        {
+            GenotypeToPhenotype(genes);
+        }
 
-
+        foreach (Rigidbody rb in wheelRigidBodies)
+        {
+            rb.maxAngularVelocity = Mathf.Infinity;
+        }
         deltaTime = Time.fixedDeltaTime;
     }
 
@@ -66,13 +73,13 @@ public class CarAgent : MonoBehaviour
 
         transform.localScale = new Vector3(size, size, size);
 
-        totalWeight = baseWeight + 
-            genes.GetGeneValueOfGeneType(GeneType.FuelCapacity) + 
+        totalWeight = baseWeight +
+            genes.GetGeneValueOfGeneType(GeneType.FuelCapacity) +
             genes.GetGeneValueOfGeneType(GeneType.Weight);
 
         fuelConsumptionRate = totalWeight / baseWeight;
 
-        totalWeight += totalWeight * (size/8);
+        totalWeight += totalWeight * (size / 8);
     }
 
     private void Visualize()

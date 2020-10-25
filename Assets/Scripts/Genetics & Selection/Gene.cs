@@ -25,13 +25,13 @@ public class Gene
                 return MathUtils.map(value, 0, 1, 1, 5000f);
 
             case GeneType.FuelCapacity:
-                return MathUtils.map(value, 0, 1, 1, 2500f);
+                return MathUtils.map(value, 0, 1, 1, 120f);
 
             case GeneType.Size:
                 return MathUtils.map(value, 0, 1, 0.1f, 10);
 
             case GeneType.Weight:
-                return MathUtils.map(value, 0, 1, 0, 2000f);
+                return MathUtils.map(value, 0, 1, 0, 800f);
         }
 
         throw new System.ArgumentException("You somehow got wrong args");
