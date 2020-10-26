@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
-
 public class CarAgent : MonoBehaviour
 {
     public bool isCreatedManually = false;
@@ -71,7 +69,7 @@ public class CarAgent : MonoBehaviour
         //TODO: Size-weight relationship.
         size = genes.GetGeneValueOfGeneType(GeneType.Size);
 
-        transform.localScale = new Vector3(size, size, size);
+        transform.localScale = new Vector3(1, 1, 1);
 
         totalWeight = baseWeight +
             genes.GetGeneValueOfGeneType(GeneType.FuelCapacity) +
@@ -80,6 +78,8 @@ public class CarAgent : MonoBehaviour
         fuelConsumptionRate = totalWeight / baseWeight;
 
         totalWeight += totalWeight * (size / 8);
+
+        acceleration = genes.GetGeneValueOfGeneType(GeneType.Acceleration);
     }
 
     private void Visualize()

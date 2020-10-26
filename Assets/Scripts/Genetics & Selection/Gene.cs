@@ -2,11 +2,7 @@
 public class Gene
 {
     public GeneType type { get; internal set; }
-    public float value
-    {
-        get { return GetValue(); }
-        private set { SetValue(value); }
-    }
+    private float value;
 
     public Gene(GeneType type, float value)
     {
@@ -14,7 +10,7 @@ public class Gene
         this.value = value;
     }
 
-    private float GetValue()
+    public float GetValue()
     {
         switch (type)
         {

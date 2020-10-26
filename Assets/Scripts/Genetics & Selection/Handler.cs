@@ -4,43 +4,23 @@ using UnityEngine;
 
 public class Handler : MonoBehaviour {
     [SerializeField] private int populationSize = 10;
-    private List<Agent> agents = new List<Agent>();
-    private float previousOverallFitness = -1;
-    
-    void Start() {
-        for (int i = 0; i < populationSize; i++) {
-            agents.Add(new Agent(new Chromosome(), "Agent " + (i + 1)));
-        }
-    }
+    private List<CarAgent> agents = new List<CarAgent>();
+    [SerializeField] private GameObject carAgent = null;
+    [SerializeField] private GameObject road = null;
 
     void Update() {
         if (Input.GetKeyDown(KeyCode.Space)) {
-            float overallFitness = 0;
-            foreach (Agent a in agents) {
-                overallFitness += a.CalculateFitness();
-            }
-            Debug.Log(previousOverallFitness);
-            Debug.Log(overallFitness);
-            previousOverallFitness = overallFitness;
             BreedNewPopulation();
         }
     }
 
     void BreedNewPopulation() {
-        List<Agent> sortedAgents = SortAgentsUsingFitnessFunction();
-        List<Agent> newAgents = new List<Agent>();
-        for (int i = 0; i < sortedAgents.Count; i += 2) {
-            newAgents.Add(new Agent(sortedAgents[i].chromosome, sortedAgents[i + 1].chromosome));
-            newAgents.Add(new Agent(sortedAgents[i].chromosome, sortedAgents[i + 1].chromosome));
+        Vector3 position = Vector3.zero + Vector3.up * 5;
+        for (int i = 0; i < populationSize; i++) {
+            Instantiate(road, position, Quaternion.identity);
+            agents.Add(Instantiate(carAgent, position + Vector3.up * 2, Quaternion.identity).GetComponent<CarAgent>());
+            agents[i].genes = new Chromosome();
+            position += Vector3.right * 10;
         }
-        agents.Clear();
-        agents = new List<Agent>(newAgents);
-        Debug.Log(agents.Count);
-    }
-
-    List<Agent> SortAgentsUsingFitnessFunction() {
-        List<Agent> sortedList = new List<Agent>();
-        sortedList = agents;
-        return sortedList;
     }
 }
