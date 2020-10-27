@@ -18,7 +18,7 @@ public class Gene
                 throw new System.ArgumentException("Define the gene type");
 
             case GeneType.Acceleration:
-                return MathUtils.map(value, 0, 1, 1, 5000f);
+                return MathUtils.map(value, 0, 1, 1, 100f);
 
             case GeneType.FuelCapacity:
                 return MathUtils.map(value, 0, 1, 1, 120f);
@@ -27,7 +27,7 @@ public class Gene
                 return MathUtils.map(value, 0, 1, 0.8f, 3);
 
             case GeneType.Weight:
-                return MathUtils.map(value, 0, 1, 0, 800f);
+                return MathUtils.map(value, 0, 1, 30, 80f);
         }
 
         throw new System.ArgumentException("You somehow got wrong args");

@@ -32,7 +32,8 @@ public class CarAgent : MonoBehaviour
     //Object state & consts:
     private float currentFuel;
     private float deltaTime;
-    const float baseWeight = 500f;
+    
+    const float baseWeight = 30f;
 
     void Start()
     {
@@ -54,7 +55,7 @@ public class CarAgent : MonoBehaviour
         foreach (Rigidbody rb in wheelRigidBodies)
         {
             rb.AddRelativeTorque(new Vector3(1, 0, 0) * acceleration, ForceMode.Force);
- 
+
         }
 
         currentFuel -= fuelConsumptionRate * deltaTime;
@@ -72,13 +73,16 @@ public class CarAgent : MonoBehaviour
 
         transform.localScale = new Vector3(1, 1, 1);
 
-        totalWeight = baseWeight +
-            genes.GetGeneValueOfGeneType(GeneType.FuelCapacity) +
+        totalWeight =
+            genes.GetGeneValueOfGeneType(GeneType.FuelCapacity) * 0.1f +
             genes.GetGeneValueOfGeneType(GeneType.Weight);
+
+        totalWeight += totalWeight * (size / 8);
 
         fuelConsumptionRate = totalWeight / baseWeight;
 
-        totalWeight += totalWeight * (size / 8);
+
+        GetComponent<Rigidbody>().mass = totalWeight;
 
         acceleration = genes.GetGeneValueOfGeneType(GeneType.Acceleration);
     }
