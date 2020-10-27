@@ -5,16 +5,30 @@ using MathUtility;
 
 public class CurveToMeshGeneration : MonoBehaviour
 {
+    public bool generateBumpyMapOnStart = false;
     public AnimationCurve curve;
     public int size;
+    
 
     public Mesh mesh;
 
     private Vector3[] vertices;
+    private const int bumps = 200;
 
 
     private void Awake()
     {
+        if (generateBumpyMapOnStart) {
+            Keyframe[] keys = new Keyframe[bumps];
+            for (int i = 0; i < bumps; i++) {
+                float value = (((float)(i % 2) * 2) - 1) * 0.3f + 0.5f;
+                if (i < (bumps / 20) || i > bumps - (bumps / 20)) value = 0.5f;
+                Keyframe key = new Keyframe(i, value);
+                //int keyInt = curve.AddKey(key);
+                keys[i] = key;
+            }
+            curve.keys = keys;
+        }
         Generate();
     }
 
@@ -31,7 +45,8 @@ public class CurveToMeshGeneration : MonoBehaviour
         vertices = new Vector3[(xSize + 1) * (ySize + 1)];
         for (int i = 0, y = 0; y <= ySize; y++)
         {
-            float yReal = MathUtils.map(curve.Evaluate(MathUtils.map(y, 0, ySize, 0, 1)), 0, 1, 0, size);
+            float mapMax = generateBumpyMapOnStart ? bumps : 1;
+            float yReal = MathUtils.map(curve.Evaluate(MathUtils.map(y, 0, ySize, 0, mapMax)), 0, mapMax, 0, size);
             for (int x = 0; x <= xSize; x++, i++)
             {
 
