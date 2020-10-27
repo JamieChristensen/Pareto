@@ -53,7 +53,8 @@ public class CarAgent : MonoBehaviour
         //Drive
         foreach (Rigidbody rb in wheelRigidBodies)
         {
-            rb.AddRelativeTorque(new Vector3(1, 0, 0) * acceleration, ForceMode.VelocityChange);
+            rb.AddRelativeTorque(new Vector3(1, 0, 0) * acceleration, ForceMode.Force);
+ 
         }
 
         currentFuel -= fuelConsumptionRate * deltaTime;

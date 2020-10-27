@@ -24,7 +24,7 @@ public class Gene
                 return MathUtils.map(value, 0, 1, 1, 120f);
 
             case GeneType.Size:
-                return MathUtils.map(value, 0, 1, 0.1f, 10);
+                return MathUtils.map(value, 0, 1, 0.8f, 3);
 
             case GeneType.Weight:
                 return MathUtils.map(value, 0, 1, 0, 800f);
