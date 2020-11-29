@@ -8,7 +8,7 @@ public class CurveToMeshGeneration : MonoBehaviour
     public bool generateBumpyMapOnStart = false;
     public AnimationCurve curve;
     public int size;
-    
+
 
     public Mesh mesh;
 
@@ -18,9 +18,11 @@ public class CurveToMeshGeneration : MonoBehaviour
 
     private void Awake()
     {
-        if (generateBumpyMapOnStart) {
+        if (generateBumpyMapOnStart)
+        {
             Keyframe[] keys = new Keyframe[bumps];
-            for (int i = 0; i < bumps; i++) {
+            for (int i = 0; i < bumps; i++)
+            {
                 float value = (((float)(i % 2) * 2) - 1) * 0.3f + 0.5f;
                 if (i < (bumps / 20) || i > bumps - (bumps / 20)) value = 0.5f;
                 Keyframe key = new Keyframe(i, value);
@@ -68,7 +70,7 @@ public class CurveToMeshGeneration : MonoBehaviour
             }
         }
         mesh.triangles = triangles;
-
+        mesh.RecalculateNormals();
         GetComponent<MeshCollider>().sharedMesh = mesh;
     }
 
