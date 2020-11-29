@@ -367,7 +367,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa88a64d487c5c64ba36b187b9fe4b63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isCreatedManually: 1
+  isCreatedManually: 0
   maxSpeed: 0
   acceleration: 20
   fuelConsumptionRate: 0
