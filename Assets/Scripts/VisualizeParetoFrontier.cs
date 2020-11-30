@@ -12,12 +12,11 @@ public class VisualizeParetoFrontier : MonoBehaviour
 
     public List<Vector3> fitnessList;
 
-
-
     public Mesh mesh;
 
     private List<Vector3> verticesList;
 
+    public LineRenderer lineRenderer;
 
     public void Start()
     {
@@ -25,7 +24,7 @@ public class VisualizeParetoFrontier : MonoBehaviour
         if (useDefaultLoading)
         {
             LoadFitnessInLocal();
-            Generate();
+            StartCoroutine(Generate());
         }
         else
         {
@@ -59,9 +58,154 @@ public class VisualizeParetoFrontier : MonoBehaviour
         //Something with actual fitness values.
     }
 
+    private int[] TrianglesFromVertices(Vector3[] vertices)
+    {
+        List<int> triangles = new List<int>();
+
+        //Take a pivot, figure out closest points within certain angles, add triangles to a list, create triangles[] from this.
+        var points = new Point[vertices.Length];
+
+        for (int j = 0; j < vertices.Length; j++)
+        {
+            points[j] = new Point
+            {
+                value = new float3(vertices[j].x, vertices[j].y, vertices[j].z),
+                anglesOccupied = new List<float>(),
+                isEdge = false,
+                isCompletedPivot = false,
+                index = j,
+                connectedVerts = new List<Point>()
+            };
+        }
+
+        //While-loop instead of recursion. Couldn't be arsed to do proper recursion. 
+        Point currentPivot = points[0];
+        int i = 0;
+        while (i == 0)
+        {
+            i++;
+
+            //Find closest point (on X & Z), check if it is a pivot or edge, if not so:
+            float minDist = Mathf.Infinity;
+            Point focus = null;
+            for (int j = 0; j < points.Length; j++)
+            {
+                if (points[j] == currentPivot) continue;
+
+                var dist = math.distance(points[j].value, currentPivot.value);
+                if (dist < minDist)
+                {
+                    minDist = dist;
+                    focus = points[j];
+                }
+            }
+            currentPivot.focus = focus;
+            //TODO: FIND ANGLES OCCUPIED AND NEST ANOTHER WHILE LOOP?????
+            Point lastVertForTriangle = ClosestPointInAngle(points, currentPivot, 180);
+
+            int firstVert = currentPivot.index;
+            int secondVert = currentPivot.focus.value.x < lastVertForTriangle.value.x ? currentPivot.focus.index : lastVertForTriangle.index;
+            int thirdVert = currentPivot.focus.value.x < lastVertForTriangle.value.x ? lastVertForTriangle.index : currentPivot.focus.index;
+            triangles.Add(firstVert);
+            triangles.Add(secondVert);
+            triangles.Add(thirdVert);
+            //Then add it to connectedVerts or trianglearray. figure it out.
 
 
-    private void Generate()
+
+            // TODO: FINISH PIVOT, THEN FIND NEW PIVOT. NEVER USE PIVOTS THAT HAVE BEEN USED BEFORE
+        }
+        Debug.Log("Number of iterations: " + i);
+
+        int[] trianglearr = triangles.ToArray();
+
+        return trianglearr;
+    }
+
+    private Point ClosestPointInAngle(Point[] points, Point pivot, float2 withinAngle)
+    {
+        Point closest = null;
+        float distance = Mathf.Infinity;
+
+        Vector3 dir = (-pivot.focus.value + pivot.value);
+        dir = dir.normalized;
+
+        foreach (Point point in points)
+        {
+            if (point == pivot)
+            {
+                continue;
+            }
+
+            if (point == pivot.focus)
+            {
+                continue;
+            }
+
+            //if the point is further away than a current point:
+            var dist = math.distance(pivot.value, point.value);
+            if (dist > distance)
+            {
+                continue;
+            }
+
+            Vector3 dirToPoint = -point.value + pivot.value;
+            if (Vector3.Angle(dir, dirToPoint) < 180)
+            {
+                // NEED TO CHECK IF WITHIN THE ANGLE TOO!
+
+                if (dist < distance)
+                {
+                    closest = point;
+                    distance = dist;
+                }
+            }
+            else
+            {
+                continue;
+            }
+        }
+
+        Debug.Assert(pivot != closest && closest != null);
+
+        return closest;
+    }
+
+    bool IsPointInAngleOfPoint()
+    {
+        return true;
+    }
+
+
+    bool AreAllPointsPivots(Point[] points)
+    {
+        foreach (Point point in points)
+        {
+            if (!point.isCompletedPivot)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+
+    class Point
+    {
+        public float3 value;
+        public Point focus; //Used when the point is a pivot.
+        public List<float> anglesOccupied; //0 = baseline, 360 = full. Never above 360, as isEdge or isCompleted will be finished at 360.
+
+        public List<Point> connectedVerts;
+        public bool isEdge;
+        public bool isCompletedPivot;
+
+        public int index;
+    }
+
+
+    private IEnumerator Generate()
     {
         float xMax, yMax, zMax;
         xMax = yMax = zMax = 0;
@@ -73,14 +217,28 @@ public class VisualizeParetoFrontier : MonoBehaviour
             zMax = Mathf.Max(zMax, point.z);
             Instantiate(nodePrefab, point + transform.position, quaternion.identity, transform);
 
-            
-        
+            yield return new WaitForSeconds(0.2f);
         }
 
         GetComponent<MeshFilter>().mesh = mesh = new Mesh();
         mesh.name = "Pareto Mesh";
 
         var vertices = fitnessList.ToArray();
+
+        int[] triangles = TrianglesFromVertices(vertices);
+
+
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+
+        lineRenderer.SetPosition(0, vertices[mesh.triangles[0]]);
+        lineRenderer.SetPosition(1, vertices[mesh.triangles[1]]);
+        lineRenderer.SetPosition(2, vertices[mesh.triangles[2]]);
+
+
+
+        mesh.RecalculateNormals();
+
 
         //vertices = new Vector3[(xSize + 1) * (ySize + 1)];
 
@@ -94,6 +252,9 @@ public class VisualizeParetoFrontier : MonoBehaviour
             }
         }
         mesh.vertices = vertices;
+        */
+
+        /*
 
         int[] triangles = new int[xSize * ySize * 6];
         for (int ti = 0, vi = 0, y = 0; y < ySize; y++, vi++)
