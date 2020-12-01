@@ -21,6 +21,7 @@ public class Handler : MonoBehaviour {
     private List<CarAgent> road1Agents = new List<CarAgent>();
     private List<CarAgent> road2Agents = new List<CarAgent>();
     private List<CarAgent> road3Agents = new List<CarAgent>();
+    private int id = 0;
 
     void Start() {
         //Time.fixedDeltaTime = 0.01f;
@@ -50,12 +51,13 @@ public class Handler : MonoBehaviour {
 
             if (time >= timePerSimulation) {
                 isRunningSimulation = false;
-                Selection();
+                RunDone();
             }
         }
     }
 
     void BreedNewAgents(List<CarAgent> prevAgents = null) {
+        chromosomes.Clear();
         CarAgent tempAgent = null;
         CarAgent newCarAgent = null;
         Chromosome ch = null;
@@ -77,9 +79,12 @@ public class Handler : MonoBehaviour {
 
             if (isCleanAgent) {
                 ch = new Chromosome();
+                ch.id = id;
+                id++;
             } else {
                 ch = prevAgents[i].genes;
             }
+            chromosomes.Add(ch);
 
             tempAgent = Instantiate(newCarAgent, transform).GetComponent<CarAgent>();
             tempAgent.handler = this;
@@ -107,27 +112,79 @@ public class Handler : MonoBehaviour {
             tempAgent = null;
             ch = null;
         }
+        CheckForDuplicates();
     }
 
-    void BreedNextPopulation() {
+    void CheckForDuplicates() {
+        //foreach (Chromosome )
+    }
+
+    void Selection() {
         road1Agents = road1Agents.OrderBy(i => i.time).ToList();
         road2Agents = road2Agents.OrderBy(i => i.time).ToList();
         road3Agents = road3Agents.OrderBy(i => i.time).ToList();
 
-        //We want a total of 15 cars in this list for double cloning (one with mutation, one without mutation)
+        //We want a cars in this list for double cloning (one with mutation, one without mutation)
         List<CarAgent> agentsForNewGeneration = new List<CarAgent>();
 
         //Get the best car from each track (3 total) (elitism)
         agentsForNewGeneration.Add(road1Agents[0]);
-        agentsForNewGeneration.Add(road2Agents[0]);
-        agentsForNewGeneration.Add(road3Agents[0]);
+        Debug.Log(agentsForNewGeneration[agentsForNewGeneration.Count - 1].genes.id);
+
+        //Ensure there aren't multiple agents with the same chromosome saved to the list
+        for (int i = 0; i < road2Agents.Count; i++) {
+            bool chromosomeAlreadySaved = false;
+            for (int j = 0; j < agentsForNewGeneration.Count; j++) {
+                if (road2Agents[i].genes == agentsForNewGeneration[j].genes) {
+                    chromosomeAlreadySaved = true;
+                    break;
+                }
+            }
+            if (chromosomeAlreadySaved) continue;
+
+            agentsForNewGeneration.Add(road2Agents[i]);
+            break;
+        }
+
+        //Ensure there aren't multiple agents with the same chromosome saved to the list
+        for (int i = 0; i < road3Agents.Count; i++) {
+            bool chromosomeAlreadySaved = false;
+            for (int j = 0; j < agentsForNewGeneration.Count; j++) {
+                if (road3Agents[i].genes == agentsForNewGeneration[j].genes) {
+                    chromosomeAlreadySaved = true;
+                    break;
+                }
+            }
+            if (chromosomeAlreadySaved) continue;
+
+            agentsForNewGeneration.Add(road3Agents[i]);
+            break;
+        }
+
         uiHandler.UpdateTimes(road1Agents, road2Agents, road3Agents);
 
         //Get the car with the best overall time across all three tracks (1 total) (best total fitness)
         road1Agents = road1Agents.OrderBy(i => i.totalTimeAcrossTracks).ToList();
-        agentsForNewGeneration.Add(road1Agents[0]);
+
+        //Ensure there aren't multiple agents with the same chromosome saved to the list
+        for (int i = 0; i < road1Agents.Count; i++) {
+            bool chromosomeAlreadySaved = false;
+            for (int j = 0; j < agentsForNewGeneration.Count; j++) {
+                if (road1Agents[i].genes == agentsForNewGeneration[j].genes) {
+                    chromosomeAlreadySaved = true;
+                    break;
+                }
+            }
+            if (chromosomeAlreadySaved) continue;
+
+            agentsForNewGeneration.Add(road1Agents[i]);
+            break;
+
+        }
+
         uiHandler.UpdateTotalTime(road1Agents[0]);
 
+        //Move the agent objects in the scene to the oldAgent transform for later Destruction!
         for (int i = 0; i < road1Agents.Count; i++) {
             road1Agents[i].transform.parent = oldAgents;
             road2Agents[i].transform.parent = oldAgents;
@@ -180,8 +237,7 @@ public class Handler : MonoBehaviour {
         uiHandler.UpdateGenerationCount(currentGeneration);
     }
 
-    void Selection() {
-        chromosomes.Clear();
+    void RunDone() {
         //TO DO: The selection should be rewritten to save the best cars from each track, before filling in the ranks in the Breed method
         for (int i = 0; i < road1Agents.Count; i++) {
             if (road1Agents[i].time == 0) road1Agents[i].time = timePerSimulation;
@@ -192,11 +248,12 @@ public class Handler : MonoBehaviour {
             road1Agents[i].UpdateTime();
             road2Agents[i].UpdateTime();
             road3Agents[i].UpdateTime();
-
-            chromosomes.Add(road1Agents[i].genes);
         }
 
 
-        BreedNextPopulation();
+        //Call Pareto
+
+
+        Selection();
     }
 }

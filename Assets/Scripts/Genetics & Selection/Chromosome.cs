@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class Chromosome
 {
+    public int id = -1;
     public List<Gene> genes { get; internal set; } = new List<Gene>();
     public float bestTrack1 = 30;
     public float bestTrack2 = 30;
