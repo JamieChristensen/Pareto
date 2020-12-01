@@ -1,16 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MathUtility;
 
 public class CarAgent : MonoBehaviour
 {
     public bool isCreatedManually = false;
     public float time = 0;
+    public float totalTimeAcrossTracks = 0;
     //Handler has a CarAgent type prefab, that it instatiates with this chromosome:
     [SerializeField] public Chromosome genes;
     [Tooltip("The max speed of the vehicle, as speed approaches this, acceleration approaches 0")]
     public float maxSpeed;
     [HideInInspector] public Handler handler = null;
+    [HideInInspector] public int track = 0;
 
 
     [Header("Car attributes")]
@@ -39,9 +42,9 @@ public class CarAgent : MonoBehaviour
 
     void Start()
     {
-        if (!isCreatedManually)
+        if (isCreatedManually)
         {
-            //genes = new Chromosome();
+            genes = new Chromosome();
             GenotypeToPhenotype(genes);
         }
 
@@ -66,18 +69,12 @@ public class CarAgent : MonoBehaviour
         Visualize();
     }
 
-    private void GenotypeToPhenotype(Chromosome genes)
+    public void GenotypeToPhenotype(Chromosome genes)
     {
         //Just set a bunch of the above parameters using the genes.
 
         //TODO: Size-weight relationship.
-        size = genes.GetGeneValueOfGeneType(GeneType.Size);
-        //transform.localScale = new Vector3(size, size, size);
-
-        //Joint[] joints = GetComponents<Joint>();
-        //foreach (Joint joint in joints) {
-        //    joint.anchor *= 1 + 1 / size;
-        //}
+        genes.SetGeneValue(GeneType.Size, MathUtils.map(size, 0.8f, 3, 0, 1));
 
         totalWeight =
             genes.GetGeneValueOfGeneType(GeneType.FuelCapacity) * 0.1f +
@@ -103,7 +100,12 @@ public class CarAgent : MonoBehaviour
         if (collision.gameObject.CompareTag("Wall")) {
             if (time == 0) {
                 time = handler.time;
+                GetComponent<Rigidbody>().isKinematic = true;
             }
         }
+    }
+
+    public void UpdateTime() {
+        genes.NewTime(time, track);
     }
 }

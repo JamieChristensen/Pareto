@@ -367,8 +367,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa88a64d487c5c64ba36b187b9fe4b63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enforceWheelPosition: 0
   isCreatedManually: 0
+  time: 0
+  totalTimeAcrossTracks: 0
   maxSpeed: 0
+  handler: {fileID: 0}
   acceleration: 20
   fuelConsumptionRate: 0
   fuelCapacity: 0
@@ -379,6 +383,11 @@ MonoBehaviour:
   - {fileID: 509951999394448895}
   - {fileID: 716062688343558146}
   - {fileID: 404527662445007221}
+  wheelJoints:
+  - {fileID: 1254617257}
+  - {fileID: 1254617258}
+  - {fileID: 1254617259}
+  - {fileID: 1254617260}
   fuelContent: {fileID: 5420251337368931535}
 --- !u!54 &2476224512649764650
 Rigidbody:
@@ -420,7 +429,7 @@ ConfigurableJoint:
   m_Anchor: {x: 1.08, y: -1.01, z: -1.35}
   m_Axis: {x: 1, y: 0, z: 0}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: -0.0000014305111, y: -0.0000033775962, z: 0.0000009934113}
+  m_ConnectedAnchor: {x: 0, y: 0, z: 0}
   serializedVersion: 2
   m_SecondaryAxis: {x: 0, y: 1, z: 0}
   m_XMotion: 0
@@ -515,7 +524,7 @@ ConfigurableJoint:
   m_Anchor: {x: -1.08, y: -1.01, z: 1.35}
   m_Axis: {x: 1, y: 0, z: 0}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: 0.00000047683716, y: -0.0000037749605, z: -0.0000009934106}
+  m_ConnectedAnchor: {x: -0, y: 0, z: 0}
   serializedVersion: 2
   m_SecondaryAxis: {x: 1, y: 1, z: 0}
   m_XMotion: 0
@@ -610,7 +619,7 @@ ConfigurableJoint:
   m_Anchor: {x: -1.08, y: -1.01, z: -1.35}
   m_Axis: {x: 1, y: 0, z: 0}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: -0.00000047683733, y: -0.0000033775962, z: 0.00000039736477}
+  m_ConnectedAnchor: {x: -0, y: 0, z: 0}
   serializedVersion: 2
   m_SecondaryAxis: {x: 0, y: 1, z: 0}
   m_XMotion: 0
@@ -705,7 +714,7 @@ ConfigurableJoint:
   m_Anchor: {x: 1.08, y: -1.01, z: 1.35}
   m_Axis: {x: 1, y: 0, z: 0}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: -0.00000047683716, y: -0.0000037749605, z: -0.00000039736426}
+  m_ConnectedAnchor: {x: 0, y: 0, z: 0}
   serializedVersion: 2
   m_SecondaryAxis: {x: 0, y: 1, z: 0}
   m_XMotion: 0

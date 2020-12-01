@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5580391765617308177
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5580391765617308179}
+  - component: {fileID: 5580391765617308178}
+  m_Layer: 0
+  m_Name: Handler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5580391765617308179
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5580391765617308177}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 185, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5580391765617308178
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5580391765617308177}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29c9520ab0b2a8a4285844ed416e0de3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnPoint1: {fileID: 0}
+  spawnPoint2: {fileID: 0}
+  spawnPoint3: {fileID: 0}
+  oldAgents: {fileID: 0}
+  scaledCarPrefabs:
+  - {fileID: 4574999814459404944, guid: 353162a5efcee2b4ea39ea1590b60337, type: 3}
+  - {fileID: 1809458669888187770, guid: e486e3eb93f689d45b7fafe1a2ce0bdb, type: 3}
+  - {fileID: 173410265632481750, guid: ca3ca25df1c38244ca7f4a66a2a462ce, type: 3}
+  - {fileID: 7152602602075497975, guid: 17e572748d53c0c47bc61a6ccf1be8cb, type: 3}
+  - {fileID: 5798344322267970691, guid: 8ea69791495dd294b9bdfb758bff39bf, type: 3}
+  - {fileID: 4664444115333562479, guid: 776e3163abb0b0b4195193e87da2dd4f, type: 3}
+  - {fileID: 7476562282300894182, guid: 679a6d3730eecb54abcf1ad4cefaabd3, type: 3}
+  - {fileID: 7834579252751517218, guid: 6ab3fb15b51cdfd4088d61e6ab57fecb, type: 3}
+  - {fileID: 1316698666877138463, guid: 0b75cfbda8afcd444bd9fad3d9fb2720, type: 3}
+  - {fileID: 2446643658124836696, guid: 512f36bafa56ffa449c4416d775dbebc, type: 3}
+  - {fileID: 843179614090199949, guid: 77421205289629244a294373a77c8eb8, type: 3}
+  - {fileID: 6818927655815237452, guid: e17260f01c30dcf4192bbd963178909d, type: 3}
+  populationSize: 30
+  timePerSimulation: 30
+  uiHandler: {fileID: 0}
+  time: 0

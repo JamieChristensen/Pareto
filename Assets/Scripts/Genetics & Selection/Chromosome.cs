@@ -4,24 +4,46 @@ using UnityEngine;
 public class Chromosome
 {
     public List<Gene> genes { get; internal set; } = new List<Gene>();
+    public float bestTrack1 = 30;
+    public float bestTrack2 = 30;
+    public float bestTrack3 = 30;
+    public List<float> timesTrack1 = new List<float>();
+    public List<float> timesTrack2 = new List<float>();
+    public List<float> timesTrack3 = new List<float>();
 
     public Chromosome() {
         genes.Add(new Gene(GeneType.Acceleration, Random.Range(0f, 1f)));
         genes.Add(new Gene(GeneType.FuelCapacity, Random.Range(0f, 1f)));
-        genes.Add(new Gene(GeneType.Size, Random.Range(0f, 1f)));
+        genes.Add(new Gene(GeneType.Size, 0));
         genes.Add(new Gene(GeneType.Weight, Random.Range(0f, 1f)));
     }
 
-    public Chromosome(Chromosome parent1, Chromosome parent2) {
-        for (int i = 0; i < parent1.genes.Count; i++) {
-            int rng = Random.Range(0, 2);
-            if (rng == 0) {
-                genes.Add(parent1.genes[i]);
-            } else {
-                genes.Add(parent2.genes[i]);
-            }
+    public void NewTime(float time, int track) {
+        switch (track) {
+            case 1:
+                if (time < bestTrack1) {
+                    bestTrack1 = time;
+                }
+                timesTrack1.Add(time);
+                break;
+            case 2:
+                if (time < bestTrack2) {
+                    bestTrack2 = time;
+                }
+                timesTrack2.Add(time);
+                break;
+            case 3:
+                if (time < bestTrack3) {
+                    bestTrack3 = time;
+                }
+                timesTrack3.Add(time);
+                break;
+            default:
+                throw new System.ArgumentNullException("Track not inputted correctly");
         }
     }
+
+    public void SetGeneSequence(List<Gene> _genes) => genes = _genes;
 
     public void SetGeneValue(GeneType type, float value) => GetGeneOfType(type).SetValue(value);
 
