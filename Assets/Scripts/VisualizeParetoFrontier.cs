@@ -8,6 +8,7 @@ using TriangleNet.Meshing;
 using TriangleNet.Tools;
 using TriangleNet.Topology;
 using TriangleNet.Voronoi;
+using MathUtility;
 
 public class VisualizeParetoFrontier : MonoBehaviour
 {
@@ -25,6 +26,9 @@ public class VisualizeParetoFrontier : MonoBehaviour
 
     public int[] myTriangles;
 
+    public ParetoFrontierSO fitnessSO;
+
+
     public void Start()
     {
         Debug.Log("sup lol");
@@ -36,6 +40,15 @@ public class VisualizeParetoFrontier : MonoBehaviour
         else
         {
             //Something with actual fitness values.
+        }
+    }
+
+    public void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+
+            StartCoroutine(Generate());
         }
     }
 
@@ -60,8 +73,22 @@ public class VisualizeParetoFrontier : MonoBehaviour
         Debug.Log("lol");
     }
 
-    public void LoadFitnessIn(List<Vector3> _fitnessList)
+    public void LoadFitnessIn()
     {
+        List<Chromosome> paretoFront = fitnessSO.ParetoFrontier;
+
+        List<Vector3> points = new List<Vector3>();
+        foreach (Chromosome gene in paretoFront)
+        {
+            //gene.track1 time converted to coordinate
+            //gene.track2 time converted to coordinate.
+            //etc.
+            //Use MathUtilities map() - max time taken is 30, min-time is 0.
+
+            
+        }
+
+
         //Something with actual fitness values.
     }
 
