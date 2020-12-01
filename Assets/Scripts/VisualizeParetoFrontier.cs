@@ -34,7 +34,9 @@ public class VisualizeParetoFrontier : MonoBehaviour
         Debug.Log("sup lol");
         if (useDefaultLoading)
         {
-            LoadFitnessInLocal();
+            //LoadFitnessInLocal();
+
+            LoadFitnessIn();
             StartCoroutine(Generate());
         }
         else
@@ -75,9 +77,14 @@ public class VisualizeParetoFrontier : MonoBehaviour
 
     public void LoadFitnessIn()
     {
-        List<Chromosome> paretoFront = fitnessSO.ParetoFrontier;
+        List<Chromosome> paretoFront = fitnessSO.paretoFrontier;
 
         List<Vector3> points = new List<Vector3>();
+        if (paretoFront.Count == 0)
+        {
+            Debug.Log("No genes in paretoFront of fitnessSO!");
+            return;
+        }
         foreach (Chromosome gene in paretoFront)
         {
             //gene.track1 time converted to coordinate
@@ -85,7 +92,12 @@ public class VisualizeParetoFrontier : MonoBehaviour
             //etc.
             //Use MathUtilities map() - max time taken is 30, min-time is 0.
 
-            
+            float x = gene.bestTrack1;
+            float y = gene.bestTrack2;
+            float z = gene.bestTrack3;
+
+            Vector3 newPoint = new Vector3(30 - x, 30 - y, 30 - z);
+            points.Add(newPoint);
         }
 
 
