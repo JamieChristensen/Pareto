@@ -1753,7 +1753,7 @@ PrefabInstance:
       objectReference: {fileID: 9130832476884320350, guid: bf77cced410fedd458a55c16da3f3571, type: 3}
     - target: {fileID: 588674433350458043, guid: 231e261466f112248947873b969f9952, type: 3}
       propertyPath: m_Name
-      value: Pareto visualiser
+      value: Pareto visualiser - change
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 231e261466f112248947873b969f9952, type: 3}
