@@ -2,7 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
-
+using TriangleNet;
+using TriangleNet.Geometry;
+using TriangleNet.Meshing;
+using TriangleNet.Tools;
+using TriangleNet.Topology;
+using TriangleNet.Voronoi;
 
 public class VisualizeParetoFrontier : MonoBehaviour
 {
@@ -12,11 +17,13 @@ public class VisualizeParetoFrontier : MonoBehaviour
 
     public List<Vector3> fitnessList;
 
-    public Mesh mesh;
+    public UnityEngine.Mesh uMesh;
 
     private List<Vector3> verticesList;
 
     public LineRenderer lineRenderer;
+
+    public int[] myTriangles;
 
     public void Start()
     {
@@ -58,152 +65,6 @@ public class VisualizeParetoFrontier : MonoBehaviour
         //Something with actual fitness values.
     }
 
-    private int[] TrianglesFromVertices(Vector3[] vertices)
-    {
-        List<int> triangles = new List<int>();
-
-        //Take a pivot, figure out closest points within certain angles, add triangles to a list, create triangles[] from this.
-        var points = new Point[vertices.Length];
-
-        for (int j = 0; j < vertices.Length; j++)
-        {
-            points[j] = new Point
-            {
-                value = new float3(vertices[j].x, vertices[j].y, vertices[j].z),
-                anglesOccupied = new List<float>(),
-                isEdge = false,
-                isCompletedPivot = false,
-                index = j,
-                connectedVerts = new List<Point>()
-            };
-        }
-
-        //While-loop instead of recursion. Couldn't be arsed to do proper recursion. 
-        Point currentPivot = points[0];
-        int i = 0;
-        while (i == 0)
-        {
-            i++;
-
-            //Find closest point (on X & Z), check if it is a pivot or edge, if not so:
-            float minDist = Mathf.Infinity;
-            Point focus = null;
-            for (int j = 0; j < points.Length; j++)
-            {
-                if (points[j] == currentPivot) continue;
-
-                var dist = math.distance(points[j].value, currentPivot.value);
-                if (dist < minDist)
-                {
-                    minDist = dist;
-                    focus = points[j];
-                }
-            }
-            currentPivot.focus = focus;
-            //TODO: FIND ANGLES OCCUPIED AND NEST ANOTHER WHILE LOOP?????
-            Point lastVertForTriangle = ClosestPointInAngle(points, currentPivot, 180);
-
-            int firstVert = currentPivot.index;
-            int secondVert = currentPivot.focus.value.x < lastVertForTriangle.value.x ? currentPivot.focus.index : lastVertForTriangle.index;
-            int thirdVert = currentPivot.focus.value.x < lastVertForTriangle.value.x ? lastVertForTriangle.index : currentPivot.focus.index;
-            triangles.Add(firstVert);
-            triangles.Add(secondVert);
-            triangles.Add(thirdVert);
-            //Then add it to connectedVerts or trianglearray. figure it out.
-
-
-
-            // TODO: FINISH PIVOT, THEN FIND NEW PIVOT. NEVER USE PIVOTS THAT HAVE BEEN USED BEFORE
-        }
-        Debug.Log("Number of iterations: " + i);
-
-        int[] trianglearr = triangles.ToArray();
-
-        return trianglearr;
-    }
-
-    private Point ClosestPointInAngle(Point[] points, Point pivot, float2 withinAngle)
-    {
-        Point closest = null;
-        float distance = Mathf.Infinity;
-
-        Vector3 dir = (-pivot.focus.value + pivot.value);
-        dir = dir.normalized;
-
-        foreach (Point point in points)
-        {
-            if (point == pivot)
-            {
-                continue;
-            }
-
-            if (point == pivot.focus)
-            {
-                continue;
-            }
-
-            //if the point is further away than a current point:
-            var dist = math.distance(pivot.value, point.value);
-            if (dist > distance)
-            {
-                continue;
-            }
-
-            Vector3 dirToPoint = -point.value + pivot.value;
-            if (Vector3.Angle(dir, dirToPoint) < 180)
-            {
-                // NEED TO CHECK IF WITHIN THE ANGLE TOO!
-
-                if (dist < distance)
-                {
-                    closest = point;
-                    distance = dist;
-                }
-            }
-            else
-            {
-                continue;
-            }
-        }
-
-        Debug.Assert(pivot != closest && closest != null);
-
-        return closest;
-    }
-
-    bool IsPointInAngleOfPoint()
-    {
-        return true;
-    }
-
-
-    bool AreAllPointsPivots(Point[] points)
-    {
-        foreach (Point point in points)
-        {
-            if (!point.isCompletedPivot)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-
-
-    class Point
-    {
-        public float3 value;
-        public Point focus; //Used when the point is a pivot.
-        public List<float> anglesOccupied; //0 = baseline, 360 = full. Never above 360, as isEdge or isCompleted will be finished at 360.
-
-        public List<Point> connectedVerts;
-        public bool isEdge;
-        public bool isCompletedPivot;
-
-        public int index;
-    }
-
 
     private IEnumerator Generate()
     {
@@ -220,70 +81,147 @@ public class VisualizeParetoFrontier : MonoBehaviour
             yield return new WaitForSeconds(0.2f);
         }
 
-        GetComponent<MeshFilter>().mesh = mesh = new Mesh();
-        mesh.name = "Pareto Mesh";
+        GetComponent<MeshFilter>().mesh = uMesh = new UnityEngine.Mesh();
+        uMesh.name = "Pareto Mesh";
 
         var vertices = fitnessList.ToArray();
-
-        int[] triangles = TrianglesFromVertices(vertices);
-
-
-        mesh.vertices = vertices;
-        mesh.triangles = triangles;
-
-        lineRenderer.SetPosition(0, vertices[mesh.triangles[0]]);
-        lineRenderer.SetPosition(1, vertices[mesh.triangles[1]]);
-        lineRenderer.SetPosition(2, vertices[mesh.triangles[2]]);
+        MakeMesh(vertices);
 
 
 
-        mesh.RecalculateNormals();
 
 
-        //vertices = new Vector3[(xSize + 1) * (ySize + 1)];
+        //SET TRIANGLES:
 
-
-        /*
-        for (int i = 0, y = 0; y <= ySize; y++)
-        {
-            for (int x = 0; x <= xSize; x++, i++)
-            {
-                vertices[i] = new Vector3(x, y);
-            }
-        }
-        mesh.vertices = vertices;
-        */
-
-        /*
-
-        int[] triangles = new int[xSize * ySize * 6];
-        for (int ti = 0, vi = 0, y = 0; y < ySize; y++, vi++)
-        {
-            for (int x = 0; x < xSize; x++, ti += 6, vi++)
-            {
-                triangles[ti] = vi;
-                triangles[ti + 3] = triangles[ti + 2] = vi + 1;
-                triangles[ti + 4] = triangles[ti + 1] = vi + xSize + 1;
-                triangles[ti + 5] = vi + xSize + 2;
-            }
-        }
-        mesh.triangles = triangles;
-        mesh.RecalculateNormals();
-        */
-
+        uMesh.RecalculateNormals();
     }
 
+    public Transform chunkPrefab;
+    TriangleNet.Mesh mesh;
+    private List<float> elevations = new List<float>();
 
-    private void Visualize()
+    public void MakeMesh(Vector3[] _vertices)
     {
-        var modadd = new ModAdd(4);
-        modadd.pp(1, 7);
+        Polygon polygon = new Polygon();
 
+        for (int i = 0; i < _vertices.Length; i++)
+        {
+            polygon.Add(new Vertex(_vertices[i].x, _vertices[i].z));
+            elevations.Add(_vertices[i].y);
+        }
+        int trianglesInChunk = 400;
 
+        TriangleNet.Meshing.ConstraintOptions options = new TriangleNet.Meshing.ConstraintOptions() { ConformingDelaunay = true, Convex = false, SegmentSplitting = 0 };
+        mesh = (TriangleNet.Mesh)polygon.Triangulate(options);
+        // Instantiate an enumerator to go over the Triangle.Net triangles - they don't
+        // provide any array-like interface for indexing
+        IEnumerator<Triangle> triangleEnumerator = mesh.Triangles.GetEnumerator();
 
+        // Create more than one chunk, if necessary
+        for (int chunkStart = 0; chunkStart < mesh.Triangles.Count; chunkStart += trianglesInChunk)
+        {
+            // Vertices in the unity mesh
+            List<Vector3> vertices = new List<Vector3>();
+
+            // Per-vertex normals
+            List<Vector3> normals = new List<Vector3>();
+
+            // Per-vertex UVs - unused here, but Unity still wants them
+            List<Vector2> uvs = new List<Vector2>();
+
+            // Triangles - each triangle is made of three indices in the vertices array
+            List<int> triangles = new List<int>();
+
+            // Iterate over all the triangles until we hit the maximum chunk size
+            int chunkEnd = chunkStart + trianglesInChunk;
+            for (int i = chunkStart; i < chunkEnd; i++)
+            {
+                if (!triangleEnumerator.MoveNext())
+                {
+                    // If we hit the last triangle before we hit the end of the chunk, stop
+                    break;
+                }
+
+                // Get the current triangle
+                Triangle triangle = triangleEnumerator.Current;
+
+                // For the triangles to be right-side up, they need
+                // to be wound in the opposite direction
+                Vector3 v0 = GetPoint3D(triangle.vertices[2].id);
+                Vector3 v1 = GetPoint3D(triangle.vertices[1].id);
+                Vector3 v2 = GetPoint3D(triangle.vertices[0].id);
+
+                // This triangle is made of the next three vertices to be added
+                triangles.Add(vertices.Count);
+                triangles.Add(vertices.Count + 1);
+                triangles.Add(vertices.Count + 2);
+
+                // Add the vertices
+                vertices.Add(v0);
+                vertices.Add(v1);
+                vertices.Add(v2);
+
+                // Compute the normal - flat shaded, so the vertices all have the same normal
+                Vector3 normal = Vector3.Cross(v1 - v0, v2 - v0);
+                normals.Add(normal);
+                normals.Add(normal);
+                normals.Add(normal);
+
+                // If you want to texture your terrain, UVs are important,
+                // but I just use a flat color so put in dummy coords
+                uvs.Add(new Vector2(0.0f, 0.0f));
+                uvs.Add(new Vector2(0.0f, 0.0f));
+                uvs.Add(new Vector2(0.0f, 0.0f));
+            }
+
+            // Create the actual Unity mesh object
+            UnityEngine.Mesh chunkMesh = new UnityEngine.Mesh();
+            chunkMesh.vertices = vertices.ToArray();
+            chunkMesh.uv = uvs.ToArray();
+            chunkMesh.triangles = triangles.ToArray();
+            chunkMesh.normals = normals.ToArray();
+
+            // Instantiate the GameObject which will display this chunk
+            Transform chunk = Instantiate<Transform>(chunkPrefab, transform.position, transform.rotation);
+            chunk.GetComponent<MeshFilter>().mesh = chunkMesh;
+            //chunk.GetComponent<MeshCollider>().sharedMesh = chunkMesh;
+            chunk.transform.parent = transform;
+        }
+    }
+
+    // This method returns the world-space vertex for a given vertex index
+    public Vector3 GetPoint3D(int index)
+    {
+        Vertex vertex = mesh.vertices[index];
+        float elevation = elevations[index];
+        return new Vector3((float)vertex.x, elevation, (float)vertex.y);
     }
 
 
+
+
+    IEnumerator CreateTriangles(Vector3[] vertices)
+    {
+        foreach (Vector3 pivot in vertices)
+        {
+            Vector3 closestPoint = new Vector3();
+
+
+            foreach (Vector3 focus in vertices)
+            {
+                if (focus == pivot)
+                {
+                    continue;
+                }
+
+
+
+            }
+        }
+
+        yield return new WaitForSeconds(0.1f);
+
+    }
 
 
     struct ModAdd

@@ -1742,11 +1742,15 @@ PrefabInstance:
     - target: {fileID: 588674433350458021, guid: 231e261466f112248947873b969f9952, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: ee5b5e2cb7c097840a41fc92f89a7e96, type: 2}
+      objectReference: {fileID: -7805965318761107941, guid: f17d5bf325121024f9392663e074efde, type: 3}
     - target: {fileID: 588674433350458022, guid: 231e261466f112248947873b969f9952, type: 3}
       propertyPath: lineRenderer
       value: 
       objectReference: {fileID: 962089207}
+    - target: {fileID: 588674433350458022, guid: 231e261466f112248947873b969f9952, type: 3}
+      propertyPath: chunkPrefab
+      value: 
+      objectReference: {fileID: 9130832476884320350, guid: bf77cced410fedd458a55c16da3f3571, type: 3}
     - target: {fileID: 588674433350458043, guid: 231e261466f112248947873b969f9952, type: 3}
       propertyPath: m_Name
       value: Pareto visualiser
