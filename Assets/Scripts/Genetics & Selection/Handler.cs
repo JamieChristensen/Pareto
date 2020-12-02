@@ -4,14 +4,17 @@ using System.Linq;
 using UnityEngine.UI;
 using System;
 
-public class Handler : MonoBehaviour {
+public class Handler : MonoBehaviour
+{
+    public ParetoFrontierSO paretoFrontierSO;
+
     [SerializeField] private Transform spawnPoint1 = null;
     [SerializeField] private Transform spawnPoint2 = null;
     [SerializeField] private Transform spawnPoint3 = null;
     [SerializeField] private Transform oldAgents = null;
     [SerializeField] private CarAgent[] scaledCarPrefabs = null;
     [SerializeField] private int populationSize = 30;
-    [SerializeField] private float timePerSimulation = 30;
+    [SerializeField] public static float timePerSimulation = 30;
     [SerializeField] private UIHandler uiHandler = null;
     [HideInInspector] public float time = 0;
     public List<Chromosome> chromosomes = new List<Chromosome>();
@@ -23,21 +26,30 @@ public class Handler : MonoBehaviour {
     private List<CarAgent> road3Agents = new List<CarAgent>();
     private int id = 0;
 
-    void Start() {
+    public static Handler instance;
+    void Start()
+    {
+        instance = this;
+
         //Time.fixedDeltaTime = 0.01f;
     }
 
-    void Update() {
-        if (Input.GetKeyDown(KeyCode.UpArrow)) {
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
             Time.timeScale = 2;
         }
-        if (Input.GetKeyUp(KeyCode.UpArrow)) {
+        if (Input.GetKeyUp(KeyCode.UpArrow))
+        {
             Time.timeScale = 1;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) && !isRunningSimulation) {
+        if (Input.GetKeyDown(KeyCode.Space) && !isRunningSimulation)
+        {
             BreedNewAgents();
-            for (int i = 0; i < road1Agents.Count; i++) {
+            for (int i = 0; i < road1Agents.Count; i++)
+            {
                 road1Agents[i].GenotypeToPhenotype(road1Agents[i].genes);
                 road2Agents[i].GenotypeToPhenotype(road2Agents[i].genes);
                 road3Agents[i].GenotypeToPhenotype(road3Agents[i].genes);
@@ -45,43 +57,55 @@ public class Handler : MonoBehaviour {
             isRunningSimulation = true;
         }
 
-        if (isRunningSimulation) {
+        if (isRunningSimulation)
+        {
             time += Time.deltaTime;
             uiHandler.UpdateSimulationTime(time, timePerSimulation);
 
-            if (time >= timePerSimulation) {
+            if (time >= timePerSimulation)
+            {
                 isRunningSimulation = false;
                 RunDone();
             }
         }
     }
 
-    void BreedNewAgents(List<CarAgent> prevAgents = null) {
+    void BreedNewAgents(List<CarAgent> prevAgents = null)
+    {
         chromosomes.Clear();
         CarAgent tempAgent = null;
         CarAgent newCarAgent = null;
         Chromosome ch = null;
         bool isCleanAgent = false;
 
-        for (int i = 0; i < populationSize; i++) {
-            if (prevAgents != null && i < prevAgents.Count) {
-                foreach (CarAgent agent in scaledCarPrefabs) {
-                    if (agent.size == prevAgents[i].size) {
+        for (int i = 0; i < populationSize; i++)
+        {
+            if (prevAgents != null && i < prevAgents.Count)
+            {
+                foreach (CarAgent agent in scaledCarPrefabs)
+                {
+                    if (agent.size == prevAgents[i].size)
+                    {
                         newCarAgent = agent;
                         isCleanAgent = false;
                         break;
                     }
                 }
-            } else {
+            }
+            else
+            {
                 newCarAgent = scaledCarPrefabs[UnityEngine.Random.Range(0, scaledCarPrefabs.Length)];
                 isCleanAgent = true;
             }
 
-            if (isCleanAgent) {
+            if (isCleanAgent)
+            {
                 ch = new Chromosome();
                 ch.id = id;
                 id++;
-            } else {
+            }
+            else
+            {
                 ch = prevAgents[i].genes;
             }
             chromosomes.Add(ch);
@@ -115,11 +139,13 @@ public class Handler : MonoBehaviour {
         CheckForDuplicates();
     }
 
-    void CheckForDuplicates() {
+    void CheckForDuplicates()
+    {
         //foreach (Chromosome )
     }
 
-    void Selection() {
+    void Selection()
+    {
         road1Agents = road1Agents.OrderBy(i => i.time).ToList();
         road2Agents = road2Agents.OrderBy(i => i.time).ToList();
         road3Agents = road3Agents.OrderBy(i => i.time).ToList();
@@ -132,10 +158,13 @@ public class Handler : MonoBehaviour {
         Debug.Log(agentsForNewGeneration[agentsForNewGeneration.Count - 1].genes.id);
 
         //Ensure there aren't multiple agents with the same chromosome saved to the list
-        for (int i = 0; i < road2Agents.Count; i++) {
+        for (int i = 0; i < road2Agents.Count; i++)
+        {
             bool chromosomeAlreadySaved = false;
-            for (int j = 0; j < agentsForNewGeneration.Count; j++) {
-                if (road2Agents[i].genes == agentsForNewGeneration[j].genes) {
+            for (int j = 0; j < agentsForNewGeneration.Count; j++)
+            {
+                if (road2Agents[i].genes == agentsForNewGeneration[j].genes)
+                {
                     chromosomeAlreadySaved = true;
                     break;
                 }
@@ -147,10 +176,13 @@ public class Handler : MonoBehaviour {
         }
 
         //Ensure there aren't multiple agents with the same chromosome saved to the list
-        for (int i = 0; i < road3Agents.Count; i++) {
+        for (int i = 0; i < road3Agents.Count; i++)
+        {
             bool chromosomeAlreadySaved = false;
-            for (int j = 0; j < agentsForNewGeneration.Count; j++) {
-                if (road3Agents[i].genes == agentsForNewGeneration[j].genes) {
+            for (int j = 0; j < agentsForNewGeneration.Count; j++)
+            {
+                if (road3Agents[i].genes == agentsForNewGeneration[j].genes)
+                {
                     chromosomeAlreadySaved = true;
                     break;
                 }
@@ -167,10 +199,13 @@ public class Handler : MonoBehaviour {
         road1Agents = road1Agents.OrderBy(i => i.totalTimeAcrossTracks).ToList();
 
         //Ensure there aren't multiple agents with the same chromosome saved to the list
-        for (int i = 0; i < road1Agents.Count; i++) {
+        for (int i = 0; i < road1Agents.Count; i++)
+        {
             bool chromosomeAlreadySaved = false;
-            for (int j = 0; j < agentsForNewGeneration.Count; j++) {
-                if (road1Agents[i].genes == agentsForNewGeneration[j].genes) {
+            for (int j = 0; j < agentsForNewGeneration.Count; j++)
+            {
+                if (road1Agents[i].genes == agentsForNewGeneration[j].genes)
+                {
                     chromosomeAlreadySaved = true;
                     break;
                 }
@@ -185,7 +220,8 @@ public class Handler : MonoBehaviour {
         uiHandler.UpdateTotalTime(road1Agents[0]);
 
         //Move the agent objects in the scene to the oldAgent transform for later Destruction!
-        for (int i = 0; i < road1Agents.Count; i++) {
+        for (int i = 0; i < road1Agents.Count; i++)
+        {
             road1Agents[i].transform.parent = oldAgents;
             road2Agents[i].transform.parent = oldAgents;
             road3Agents[i].transform.parent = oldAgents;
@@ -196,11 +232,13 @@ public class Handler : MonoBehaviour {
 
         BreedNewAgents(agentsForNewGeneration);
 
-        foreach (Transform t in oldAgents) {
+        foreach (Transform t in oldAgents)
+        {
             Destroy(t.gameObject);
         }
 
-        for (int i = 0, j = 0; i < agentsForNewGeneration.Count; i++, j += 2) {
+        for (int i = 0, j = 0; i < agentsForNewGeneration.Count; i++, j += 2)
+        {
             road1Agents[j].genes.SetGeneSequence(agentsForNewGeneration[i].genes.genes);
             road1Agents[j].handler = this;
 
@@ -225,7 +263,8 @@ public class Handler : MonoBehaviour {
             road3Agents[j + 1].handler = this;
         }
 
-        for (int i = 0; i < road1Agents.Count; i++) {
+        for (int i = 0; i < road1Agents.Count; i++)
+        {
             road1Agents[i].GenotypeToPhenotype(road1Agents[i].genes);
             road2Agents[i].GenotypeToPhenotype(road2Agents[i].genes);
             road3Agents[i].GenotypeToPhenotype(road3Agents[i].genes);
@@ -237,9 +276,11 @@ public class Handler : MonoBehaviour {
         uiHandler.UpdateGenerationCount(currentGeneration);
     }
 
-    void RunDone() {
+    void RunDone()
+    {
         //TO DO: The selection should be rewritten to save the best cars from each track, before filling in the ranks in the Breed method
-        for (int i = 0; i < road1Agents.Count; i++) {
+        for (int i = 0; i < road1Agents.Count; i++)
+        {
             if (road1Agents[i].time == 0) road1Agents[i].time = timePerSimulation;
             if (road2Agents[i].time == 0) road2Agents[i].time = timePerSimulation;
             if (road3Agents[i].time == 0) road3Agents[i].time = timePerSimulation;
@@ -252,7 +293,12 @@ public class Handler : MonoBehaviour {
 
 
         //Call Pareto
+        paretoFrontierSO.UpdateFrontier(chromosomes);
 
+        if (paretoFrontierSO.paretoFrontier.Count >= 3)
+        {
+            VisualizeParetoFrontier.updateFrontier = true;
+        }
 
         Selection();
     }

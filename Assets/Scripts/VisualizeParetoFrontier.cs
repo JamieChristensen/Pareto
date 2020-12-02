@@ -35,9 +35,10 @@ public class VisualizeParetoFrontier : MonoBehaviour
         if (useDefaultLoading)
         {
             //LoadFitnessInLocal();
-
-            LoadFitnessIn();
-            StartCoroutine(Generate());
+            /*
+                        LoadFitnessIn();
+                        StartCoroutine(Generate());
+              */
         }
         else
         {
@@ -47,32 +48,50 @@ public class VisualizeParetoFrontier : MonoBehaviour
 
     public void Update()
     {
+        if (!updateFrontier)
+        {
+            return;
+        }
+
+        UpdateFrontier();
+        updateFrontier = false;
+        
         if (Input.GetKeyDown(KeyCode.Return))
         {
+            StopAllCoroutines();
+            var transforms = transform.GetComponentsInChildren<Transform>();
+            foreach (Transform trans in transforms)
+            {
+                if (trans.tag == "Player")
+                {
+                    Destroy(trans.gameObject);
+                }
+            }
 
+            LoadFitnessIn();
             StartCoroutine(Generate());
         }
     }
 
-    public void LoadFitnessInLocal()
+    public static bool updateFrontier;
+
+    public void UpdateFrontier()
     {
-        var _fitnessList = new List<Vector3>(10);
 
-        float mult = 5;
-        float yMax = 2;
-        float sizes = 5;
-
-
-        for (int i = 0; i < 5; i++)
+        StopAllCoroutines();
+        var transforms = transform.GetComponentsInChildren<Transform>();
+        foreach (Transform trans in transforms)
         {
-            for (int j = 0; j < 5; j++)
+            if (trans.tag == "Player")
             {
-                _fitnessList.Add(new Vector3(i * mult, Mathf.Min(Mathf.Max(i, j), yMax) * mult, j * mult));
+                Destroy(trans.gameObject);
             }
         }
 
-        fitnessList = _fitnessList;
-        Debug.Log("lol");
+        LoadFitnessIn();
+        StartCoroutine(Generate());
+
+        updateFrontier = false;
     }
 
     public void LoadFitnessIn()
@@ -85,6 +104,8 @@ public class VisualizeParetoFrontier : MonoBehaviour
             Debug.Log("No genes in paretoFront of fitnessSO!");
             return;
         }
+        points.Clear();
+        fitnessList.Clear();
         foreach (Chromosome gene in paretoFront)
         {
             //gene.track1 time converted to coordinate
@@ -92,15 +113,18 @@ public class VisualizeParetoFrontier : MonoBehaviour
             //etc.
             //Use MathUtilities map() - max time taken is 30, min-time is 0.
 
+            //Order decides how track-fitness is visualized in coordinate-space.
             float x = gene.bestTrack1;
             float y = gene.bestTrack2;
             float z = gene.bestTrack3;
+
+            y = MathUtils.map(y, 0, Handler.timePerSimulation, 0, 30);
 
             Vector3 newPoint = new Vector3(30 - x, 30 - y, 30 - z);
             points.Add(newPoint);
         }
 
-
+        fitnessList = points;
         //Something with actual fitness values.
     }
 
@@ -115,25 +139,26 @@ public class VisualizeParetoFrontier : MonoBehaviour
             xMax = Mathf.Max(xMax, point.x);
             yMax = Mathf.Max(yMax, point.y);
             zMax = Mathf.Max(zMax, point.z);
-            Instantiate(nodePrefab, point + transform.position, quaternion.identity, transform);
+            GameObject go = Instantiate(nodePrefab, point + transform.position, quaternion.identity, transform);
+            ParetoNodeInfo paretoNodeInfo = go.AddComponent<ParetoNodeInfo>();
 
-            yield return new WaitForSeconds(0.2f);
+            paretoNodeInfo.bestTrack1 = Mathf.Abs(point.x - 30);
+            paretoNodeInfo.bestTrack2 = Mathf.Abs(point.y - 30);
+            paretoNodeInfo.bestTrack3 = Mathf.Abs(point.z - 30);
+            yield return new WaitForSeconds(0.04f);
         }
 
         GetComponent<MeshFilter>().mesh = uMesh = new UnityEngine.Mesh();
         uMesh.name = "Pareto Mesh";
 
-        var vertices = fitnessList.ToArray();
+        vertices = fitnessList.ToArray();
+        Debug.Log("Vertices: " + vertices.ToString());
         MakeMesh(vertices);
 
 
-
-
-
-        //SET TRIANGLES:
-
         uMesh.RecalculateNormals();
     }
+    public Vector3[] vertices;
 
     public Transform chunkPrefab;
     TriangleNet.Mesh mesh;
@@ -142,19 +167,40 @@ public class VisualizeParetoFrontier : MonoBehaviour
     public void MakeMesh(Vector3[] _vertices)
     {
         Polygon polygon = new Polygon();
+        elevations.Clear();
 
         for (int i = 0; i < _vertices.Length; i++)
         {
             polygon.Add(new Vertex(_vertices[i].x, _vertices[i].z));
             elevations.Add(_vertices[i].y);
         }
+
+        Debug.Log("Length of polygon vertex-count: " + polygon.Count +
+         "\n Length of elevations:" + elevations.Count);
+
+
         int trianglesInChunk = 400;
 
-        TriangleNet.Meshing.ConstraintOptions options = new TriangleNet.Meshing.ConstraintOptions() { ConformingDelaunay = true, Convex = false, SegmentSplitting = 0 };
+        TriangleNet.Meshing.ConstraintOptions options = new TriangleNet.Meshing.ConstraintOptions() { ConformingDelaunay = true, Convex = false, SegmentSplitting = 1 };
         mesh = (TriangleNet.Mesh)polygon.Triangulate(options);
+
+        /*
+              foreach (Vertex vert in mesh.Vertices)
+              {
+                  elevations.Add(7);
+              }
+      */
+        Debug.Log("Mesh.vertices at breakpoint: " + mesh.Vertices.Count);
+
+
+
+
+
+
         // Instantiate an enumerator to go over the Triangle.Net triangles - they don't
         // provide any array-like interface for indexing
         IEnumerator<Triangle> triangleEnumerator = mesh.Triangles.GetEnumerator();
+
 
         // Create more than one chunk, if necessary
         for (int chunkStart = 0; chunkStart < mesh.Triangles.Count; chunkStart += trianglesInChunk)
@@ -194,6 +240,9 @@ public class VisualizeParetoFrontier : MonoBehaviour
                 triangles.Add(vertices.Count);
                 triangles.Add(vertices.Count + 1);
                 triangles.Add(vertices.Count + 2);
+                triangles.Add(vertices.Count);
+                triangles.Add(vertices.Count + 2);
+                triangles.Add(vertices.Count + 1);
 
                 // Add the vertices
                 vertices.Add(v0);
@@ -233,6 +282,9 @@ public class VisualizeParetoFrontier : MonoBehaviour
     {
         Vertex vertex = mesh.vertices[index];
         float elevation = elevations[index];
+        Debug.Log("Length of mesh.vertices: " + mesh.vertices.Count +
+                "\n Length of elevations:" + elevations.Count);
+
         return new Vector3((float)vertex.x, elevation, (float)vertex.y);
     }
 

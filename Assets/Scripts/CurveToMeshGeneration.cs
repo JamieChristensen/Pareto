@@ -13,7 +13,7 @@ public class CurveToMeshGeneration : MonoBehaviour
     public Mesh mesh;
 
     private Vector3[] vertices;
-    private const int bumps = 200;
+    private const int bumps = 25;
 
 
     private void Awake()
@@ -23,8 +23,8 @@ public class CurveToMeshGeneration : MonoBehaviour
             Keyframe[] keys = new Keyframe[bumps];
             for (int i = 0; i < bumps; i++)
             {
-                float value = (((float)(i % 2) * 2) - 1) * 0.3f + 0.5f;
-                if (i < (bumps / 20) || i > bumps - (bumps / 20)) value = 0.5f;
+                float value = (((float)(i % 2) * 2) - 1) * 0.2f + 0.5f;
+                if (i < (3) || i > bumps - (3)) value = 0.5f;
                 Keyframe key = new Keyframe(i, value);
                 //int keyInt = curve.AddKey(key);
                 keys[i] = key;

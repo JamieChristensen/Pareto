@@ -12,3 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71cf74d419d5bcd419eaaa16dab202be, type: 3}
   m_Name: ParetoFrontierSO
   m_EditorClassIdentifier: 
+  paretoFrontier: []
